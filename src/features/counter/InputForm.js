@@ -3,8 +3,9 @@ import { useDispatch } from 'react-redux';
 import styles from './Tourna.module.css';
 
 import {
-  addToPlayersList,
+  setPlayersList,
   switchToMatchups,
+  setMatchupsList,
 } from './tournaSlice';
 
 export function InputForm() {
@@ -17,9 +18,46 @@ export function InputForm() {
   const handleSubmit = dispatch => event => {
     event.preventDefault();
     const playersArr = Object.values(players);
+    const matchups = matchupAlgo(playersArr);
 
-    dispatch(addToPlayersList(playersArr))
+    dispatch(setPlayersList(playersArr))
+    dispatch(setMatchupsList(matchups))
     dispatch(switchToMatchups())
+  }
+
+  const matchupAlgo = players => {
+    const matchups = [];
+
+    players.forEach((player1, idx1) => {
+      players.forEach((player2, idx2) => {
+        if (player1.name !== player2.name && idx2 > idx1) {
+          matchups.push({
+            team1: player1,
+            team2: player2
+          })
+        }
+      })
+    });
+
+    return shuffle(matchups);
+  }
+
+  const shuffle = (array) => {
+    let currentIndex = array.length, randomIndex;
+
+    // While there remain elements to shuffle...
+    while (currentIndex != 0) {
+
+      // Pick a remaining element...
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex], array[currentIndex]];
+    }
+
+    return array;
   }
 
   const handlePlayerCountSubmit = (event) => {
